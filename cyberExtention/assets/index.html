@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Color-Changing Search Bar</title>
+    <style>
+        .container {
+            background-color: #272c36;
+            height: 800px;
+            width: 1500px;
+            margin: auto;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .search-box {
+            display: flex;
+            margin-top: 50px;
+            width: 100%; /* add this line to set the width to 100% */
+            height: 50px;
+        }
+
+        .image-box {
+            display: flex;
+            margin-top: 50px;
+            width: 100%;
+            justify-content: center;
+            align-content: center;
+        }
+
+        .search-bar {
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-right: 10px;
+            transition: background-color 0.5s ease;
+            width: 100%; /* add this line to set the width to 100% */
+        }
+
+        .search-bar:focus {
+            outline: none;
+        }
+
+
+        .search-btn {
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.5s ease;
+        }
+
+        .search-btn:hover {
+            background-color: #0074D9;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="text-box">
+        <p style="font-weight: bolder; color: #ffffff; background-color: #1b212c; padding: 10px;">Check URL for any
+            potential phishing threats</p>
+    </div>
+    <div class="search-box col-8">
+        <input type="text" class="search-bar" id="search"
+               placeholder="Check URL...">
+        <button class="search-btn" onclick="searchURL()">Search</button>
+    </div>
+    <div class="risk-message">
+    </div>
+    <div class="image-box col-8">
+        <img src="/assets/img/logo.png" alt="No Image">
+    </div>
+</div>
+<script>
+    async function searchURL() {
+        const riskMessageDiv = document.querySelector(".risk-message");
+        const h2ElementChild = document.querySelector(".risk-message h2");
+
+        if (h2ElementChild) {
+            riskMessageDiv.removeChild(h2ElementChild);
+        }
+        // Default options are marked with *
+        const url = document.getElementById("search")
+        const data = {url: url.value}
+        let responseData = await fetch("/checkUrl", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        responseData = await responseData.json()
+
+        const h2Element = document.createElement("h2");
+
+        if (responseData.risk === "Safe") {
+            h2Element.textContent = "URL is Safe to proceed with."
+            h2Element.style.fontWeight = "bolder";
+            h2Element.style.color = "green";
+        } else if (responseData.risk === "Warning") {
+            h2Element.textContent = "URL is in the warning, take a caution while using this.";
+            h2Element.style.fontWeight = "bolder";
+            h2Element.style.color = "orange";
+        } else {
+            h2Element.textContent = "This URL Contains danger."
+            h2Element.style.fontWeight = "bolder";
+            h2Element.style.color = "red";
+        }
+        riskMessageDiv.appendChild(h2Element);
+
+    }
+</script>
+</body>
+</html>
